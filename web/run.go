@@ -12,8 +12,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
 }
 
-func Run() {
-	mux := http.NewServeMux()
+func Run(mux *http.ServeMux) {
+	if mux == nil {
+		mux = http.NewServeMux()
+	}
 	go easysock.Hub.Run()
 	mux.HandleFunc("/", Index)
 	mux.HandleFunc("/ws", easysock.ServeWs)
