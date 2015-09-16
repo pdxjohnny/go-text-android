@@ -2,8 +2,8 @@ package hello
 
 import (
 	"fmt"
+	"log"
 	"net/http"
-	"html"
 
 	// "github.com/pdxjohnny/microsocket/client"
 
@@ -21,10 +21,13 @@ func Greetings(name string) string {
 func StartWeb(sms SmsManager) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/send", func (w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-		sendTo := "9716781233"
-		sendMessage := "Hello from go server"
-		sms.Send(sendTo, sendMessage)
+		r.ParseMultipartForm(2048)
+		r.ParseForm()
+		log.Println(r.Form)
+		fmt.Fprintf(w, "Will send to %q", r.FormValue("number"))
+		sendTo := r.FormValue("number")
+		sendMessage := r.FormValue("message")
+		go sms.Send(sendTo, sendMessage)
 	})
 	go web.Run(mux)
 }
